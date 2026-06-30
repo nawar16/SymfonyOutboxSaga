@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  docker-compose-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup CI environment vars
+        shell: bash
+        run: |
+          mkdir -p config/jwt
+          cat <<'EOF' > .env.test.local
+          APP_ENV=test
+          DATABASE_URL="postgresql://postgres.${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@postgres:5432/postgres?serverVersion=16&charset=utf8"
+          JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}
+          EOF
+
+      - name: Start docker services
+        env:
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: docker compose up -d --build
+
+      - name: Wait for PostgreSQL
+        shell: bash
+        env:
+          DB_USER: ${{ secrets.DB_USER }}
+        run: |
+          for attempt in {1..20}; do
+            if docker compose exec -T postgres pg_isready -U "postgres.$DB_USER" -d postgres; then
+              echo "Database is ready!"
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1
+
+      - name: Install dependencies
+        run: |
+          docker compose exec -T php composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Generate JWT keys
+        run: |
+          docker compose exec -T php php bin/console lexik:jwt:generate-keypair --overwrite --no-interaction
+
+      - name: Setup database & run tests
+        run: |
+          docker compose exec -T php php bin/console doctrine:database:create --if-not-exists
+          docker compose exec -T php php bin/console doctrine:schema:create
+          docker compose exec -T php vendor/bin/phpunit
+
+      - name: Shut down services
+        if: always()
+        env:
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: docker compose down -v
