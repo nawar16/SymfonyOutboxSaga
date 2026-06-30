@@ -15,23 +15,24 @@ RUN set -eux; \
         libpq-dev \
         librabbitmq-dev \
         librabbitmq4 \
-        postgresql-client; \
+        postgresql-client \
+        libzip-dev \
+        zip \
+        php-redis; \
     \
     docker-php-ext-install -j"$(nproc)" \
         intl \
         pdo_pgsql \
-        pgsql; \
+        pgsql \
+        zip; \
     \
     pecl channel-update pecl.php.net; \
-    \
     pecl install amqp-2.1.2; \
     docker-php-ext-enable amqp; \
     \
-    pecl install redis-6.2.0; \
-    docker-php-ext-enable redis; \
-    \
     rm -rf /var/lib/apt/lists/* /tmp/pear
-    
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+RUN curl -sS https://getcomposer.org/installer | php -- \
+    --install-dir=/usr/local/bin --filename=composer
 
 WORKDIR /var/www/html
