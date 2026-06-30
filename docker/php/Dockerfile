@@ -31,3 +31,7 @@ RUN set -eux; \
     docker-php-ext-enable redis; \
     \
     rm -rf /var/lib/apt/lists/* /tmp/pear
+    
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
