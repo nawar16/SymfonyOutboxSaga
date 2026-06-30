@@ -23,15 +23,11 @@ RUN set -eux; \
         pgsql; \
     \
     pecl channel-update pecl.php.net; \
-    pecl install amqp; \
+    \
+    pecl install amqp-2.1.2; \
     docker-php-ext-enable amqp; \
     \
-    pecl install redis; \
+    pecl install redis-6.2.0; \
     docker-php-ext-enable redis; \
     \
-    apt-get clean; \
     rm -rf /var/lib/apt/lists/* /tmp/pear
-
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-WORKDIR /var/www/html
