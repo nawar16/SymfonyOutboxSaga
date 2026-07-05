@@ -10,29 +10,31 @@ class Order
 {
     private string $id;
     private string $customerId;
+    private string $inventoryHoldId;
     private string $status;
     /** @var Collection<int, OrderItem> */
     private Collection $items;
     private int $totalAmount = 0;
     private array $domainEvents = [];
 
-    private function __construct(string $id, string $customerId)
+    private function __construct(string $id, string $inventoryHoldId, string $customerId)
     {
         $this->id = $id;
         $this->customerId = $customerId;
+        $this->inventoryHoldId = $inventoryHoldId;
         $this->status = 'PENDING';
         $this->items = new ArrayCollection(); 
     }
     /** @param array<OrderItem> $items */
-    public static function place(string $id, string $customerId, array $items): self
+    public static function place(string $id, string $customerId, string $inventoryHoldId, array $items): self
     {
         if (empty($items)) 
             throw new \DomainException('An order must contain at least one item');
-        $order = new self($id, $customerId);
+        $order = new self($id, $customerId, $inventoryHoldId);
         foreach ($items as $item) {
             $order->addItem($item);
         }
-        $order->recordEvent(new OrderPlaced($id, $customerId, $order->getTotalAmount()));
+        $order->recordEvent(new OrderPlaced($id, $customerId, $inventoryHoldId, $order->getTotalAmount()));
         return $order;
     }
 
@@ -77,7 +79,8 @@ class Order
     public function getTotalAmount(): int { return $this->totalAmount; }
     /** @return array<OrderItem> */
     public function getItems(): array { return $this->items->toArray(); }
-
+    public function getInventoryHoldId(): string { return $this->inventoryHoldId; } // ADDED GETTER
+   
     public function pullDomainEvents(): array
     {
         $events = $this->domainEvents;

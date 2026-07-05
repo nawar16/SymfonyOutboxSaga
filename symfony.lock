@@ -116,5 +116,11 @@
     },
     "symfony/security-bundle": {
         "version": "v7.4.14"
+    },
+    "symfony/uid": {
+        "version": "7.4",
+        "recipe": {
+            "version": "7.0"
+        }
     }
 }
