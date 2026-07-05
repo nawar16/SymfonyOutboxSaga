@@ -4,10 +4,29 @@ doctrine:
 
         # IMPORTANT: You MUST configure your server version,
         # either here or in the DATABASE_URL env var (see .env file)
-        #server_version: '16'
-
+        server_version: '15'
+        schema_filter: '~^public\.~'
         profiling_collect_backtrace: '%kernel.debug%'
         use_savepoints: true
+        mapping_types:
+            _text: text
+            _int4: integer
+            _int8: bigint
+            code_challenge_method: string
+            factor_status: string
+            factor_type: string
+            jsonb: json
+            vector: json
+            oauth_response_type: string
+            oauth_authorization_status: string
+            oauth_registration_type: string
+            oauth_client_type: string
+            one_time_token_type: string
+            aal_level: string
+            regclass: string
+            _user_defined_filter: string
+            regrole: string
+            buckettype: string
     orm:
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true
@@ -18,14 +37,16 @@ doctrine:
             Doctrine\DBAL\Platforms\PostgreSQLPlatform: identity
         auto_mapping: true
         mappings:
-            App:
+            AppDomains:
                 type: attribute
                 is_bundle: false
-                dir: '%kernel.project_dir%/src/Entity'
-                prefix: 'App\Entity'
-                alias: App
+                dir: '%kernel.project_dir%/src'
+                prefix: 'App'
+                alias: AppDomains
+
         controller_resolver:
             auto_mapping: false
+        schema_ignore_classes: []
 
 when@test:
     doctrine:

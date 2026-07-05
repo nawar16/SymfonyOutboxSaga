@@ -89,6 +89,9 @@
             "./.editorconfig"
         ]
     },
+    "symfony/maker-bundle": {
+        "version": "v1.67.0"
+    },
     "symfony/phpunit-bridge": {
         "version": "8.1",
         "recipe": {

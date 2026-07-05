@@ -5,18 +5,28 @@ namespace App\Ordering\Domain\Entity;
 use App\Ordering\Domain\Event\OrderPlaced;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Entity]
+#[ORM\Table(name: 'orders')]
 class Order
 {
+    #[ORM\Id]
+    #[ORM\Column(type: 'string', length: 36)]
     private string $id;
+    #[ORM\Column(type: 'string', length: 36)]
     private string $customerId;
+    #[ORM\Column(type: 'string', length: 36)]
     private string $inventoryHoldId;
+    #[ORM\Column(type: 'string', length: 50)]
     private string $status;
     /** @var Collection<int, OrderItem> */
+    #[ORM\OneToMany(mappedBy: 'order', targetEntity: OrderItem::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $items;
+    #[ORM\Column(type: 'integer')]
     private int $totalAmount = 0;
     private array $domainEvents = [];
-
+    
     private function __construct(string $id, string $inventoryHoldId, string $customerId)
     {
         $this->id = $id;
