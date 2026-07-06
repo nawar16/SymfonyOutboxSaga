@@ -1,23 +1,23 @@
 <?php
 
-namespace App\Ordering\Application\CommandHandler;
+namespace App\Ordering\Application\Handler;
 
 use App\Ordering\Application\Command\PlaceOrderCommand;
 use App\Ordering\Domain\Entity\Order;
 use App\Ordering\Domain\Entity\OrderItem;
+use App\Ordering\Domain\Repository\OrderRepositoryInterface;
 use App\Ordering\Domain\Service\PriceLookupServiceInterface; 
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Uid\Uuid;
 
-final class PlaceOrderCommandHandler
+final class PlaceOrderHandler
 {
-    private EntityManagerInterface $entityManager;
+    private OrderRepositoryInterface $orderRepo;
     private PriceLookupServiceInterface $priceLookupService;
     public function __construct(
-        EntityManagerInterface $entityManager,
+        OrderRepositoryInterface $orderRepo,
         PriceLookupServiceInterface $priceLookupService
     ) {
-        $this->entityManager = $entityManager;
+        $this->orderRepo = $orderRepo;
         $this->priceLookupService = $priceLookupService;
     }
 
@@ -37,11 +37,9 @@ final class PlaceOrderCommandHandler
                 $priceInCents
             );
         }
-        //track the saga reservation
-        $order = Order::place($orderId, $customerId, $command->getInventoryHoldId(), $domainItems);
-        //TODO: outbox listener will intercept here
-        $this->entityManager->persist($order);
-        $this->entityManager->flush();
+        $order = Order::place($orderId, $customerId, $domainItems);
+        //TODO: outbox listener 
+        $this->orderRepo->save($order);
         return $orderId;
     }
 }

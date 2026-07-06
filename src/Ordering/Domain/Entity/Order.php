@@ -2,6 +2,7 @@
 
 namespace App\Ordering\Domain\Entity;
 
+use App\Ordering\Domain\Enum\OrderStatus;
 use App\Ordering\Domain\Event\OrderPlaced;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -16,10 +17,8 @@ class Order
     private string $id;
     #[ORM\Column(type: 'string', length: 36)]
     private string $customerId;
-    #[ORM\Column(type: 'string', length: 36)]
-    private string $inventoryHoldId;
-    #[ORM\Column(type: 'string', length: 50)]
-    private string $status;
+    #[ORM\Column(enumType: OrderStatus::class)]
+    private OrderStatus $status;
     /** @var Collection<int, OrderItem> */
     #[ORM\OneToMany(mappedBy: 'order', targetEntity: OrderItem::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $items;
@@ -27,47 +26,41 @@ class Order
     private int $totalAmount = 0;
     private array $domainEvents = [];
     
-    private function __construct(string $id, string $inventoryHoldId, string $customerId)
+    private function __construct(string $id, string $customerId)
     {
         $this->id = $id;
         $this->customerId = $customerId;
-        $this->inventoryHoldId = $inventoryHoldId;
-        $this->status = 'PENDING';
+        $this->status = OrderStatus::Pending;
         $this->items = new ArrayCollection(); 
     }
     /** @param array<OrderItem> $items */
-    public static function place(string $id, string $customerId, string $inventoryHoldId, array $items): self
+    public static function place(string $id, string $customerId, array $items): self
     {
         if (empty($items)) 
             throw new \DomainException('An order must contain at least one item');
-        $order = new self($id, $customerId, $inventoryHoldId);
+        $order = new self($id, $customerId);
         foreach ($items as $item) {
             $order->addItem($item);
         }
-        $order->recordEvent(new OrderPlaced($id, $customerId, $inventoryHoldId, $order->getTotalAmount()));
+        $order->recordEvent(new OrderPlaced($id, $customerId, $order->getTotalAmount(),         
+        array_map(
+            fn(OrderItem $item) => [
+                'productId' => $item->getProductId(),
+                'quantity' => $item->getQuantity()
+            ],
+            $order->getItems()
+        )));
         return $order;
     }
 
     private function addItem(OrderItem $item): void
     {
         foreach ($this->items as $existingItem) 
-            if ($existingItem->getId() === $item->getId()) 
+            if ($existingItem->getProductId() === $item->getProductId())
                 throw new \DomainException('Item already exists in this order');
         $this->items->add($item);
-        $item->setOrder($this); 
+        $item->assignToOrder($this); 
         $this->recalculateTotal();
-    }
-    //aggregate root control
-    public function shipItem(string $itemId): void
-    {
-        foreach ($this->items as $item) {
-            if ($item->getId() === $itemId) {
-                $item->shipInternal();
-                $this->checkIfFullyShipped(); 
-                return;
-            }
-        }
-        throw new \DomainException('Item not found in this order');
     }
     private function recalculateTotal(): void
     {
@@ -76,20 +69,19 @@ class Order
             $total += $item->getPriceInCents() * $item->getQuantity();
         $this->totalAmount = $total;
     }
-    private function checkIfFullyShipped(): void
-    {
-        foreach ($this->items as $item) 
-            if ($item->getStatus() !== 'SHIPPED') return;
-        $this->status = 'SHIPPED';
-    }
+    // private function checkIfFullyShipped(): void
+    // {
+    //     foreach ($this->items as $item) 
+    //         if ($item->getStatus() !== 'SHIPPED') return;
+    //     $this->status = OrderStatus::Shipped;
+    // }
 
     public function getId(): string { return $this->id; }
     public function getCustomerId(): string { return $this->customerId; }
-    public function getStatus(): string { return $this->status; }
+    public function getStatus(): OrderStatus { return $this->status; }
     public function getTotalAmount(): int { return $this->totalAmount; }
     /** @return array<OrderItem> */
     public function getItems(): array { return $this->items->toArray(); }
-    public function getInventoryHoldId(): string { return $this->inventoryHoldId; } // ADDED GETTER
    
     public function pullDomainEvents(): array
     {

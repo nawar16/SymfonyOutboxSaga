@@ -31,14 +31,14 @@ class OrderItem
         $this->priceInCents = $priceInCents;
         $this->status = 'PENDING';
     }
-    public function shipInternal(): void
-    {
-        if ($this->status === 'SHIPPED') 
-            throw new \DomainException('Item is already shipped');
-        $this->status = 'SHIPPED';
-    }
+    // public function shipInternal(): void
+    // {
+    //     if ($this->status === 'SHIPPED') 
+    //         throw new \DomainException('Item is already shipped');
+    //     $this->status = 'SHIPPED';
+    // }
 
-    public function setOrder(Order $order): void { $this->order = $order;}
+    public function assignToOrder(Order $order): void { $this->order = $order;}
 
     public function getId(): string { return $this->id; }
     public function getProductId(): string { return $this->productId; }
