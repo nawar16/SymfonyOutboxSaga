@@ -2,6 +2,8 @@
 
 namespace App\Ordering\Domain\Entity;
 
+use App\Ordering\Domain\Exception\InvalidPriceException;
+use App\Ordering\Domain\Exception\InvalidQuantityException;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -25,6 +27,11 @@ class OrderItem
 
     public function __construct(string $id, string $productId, int $quantity, int $priceInCents)
     {
+        ($productId === '')? throw new \InvalidArgumentException('Product ID cannot be empty'):'';
+        ($quantity <= 0)? throw new InvalidQuantityException($quantity):'';
+        ($priceInCents < 0)? throw new InvalidPriceException($priceInCents):'';
+        ($quantity > 1000)? throw new InvalidQuantityException($quantity):'';
+
         $this->id = $id;
         $this->productId = $productId;
         $this->quantity = $quantity;

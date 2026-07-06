@@ -4,6 +4,8 @@ namespace App\Ordering\Domain\Entity;
 
 use App\Ordering\Domain\Enum\OrderStatus;
 use App\Ordering\Domain\Event\OrderPlaced;
+use App\Ordering\Domain\Exception\DuplicateOrderItemException;
+use App\Ordering\Domain\Exception\EmptyOrderException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -37,7 +39,7 @@ class Order
     public static function place(string $id, string $customerId, array $items): self
     {
         if (empty($items)) 
-            throw new \DomainException('An order must contain at least one item');
+            throw new EmptyOrderException();
         $order = new self($id, $customerId);
         foreach ($items as $item) {
             $order->addItem($item);
@@ -57,7 +59,7 @@ class Order
     {
         foreach ($this->items as $existingItem) 
             if ($existingItem->getProductId() === $item->getProductId())
-                throw new \DomainException('Item already exists in this order');
+                throw new DuplicateOrderItemException($item->getProductId());
         $this->items->add($item);
         $item->assignToOrder($this); 
         $this->recalculateTotal();
