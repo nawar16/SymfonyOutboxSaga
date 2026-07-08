@@ -2,7 +2,9 @@
 
 namespace App\Ordering\Domain\Event;
 
-final class OrderPlaced
+use App\Shared\Domain\Event\DomainEvent;
+
+final class OrderPlaced implements DomainEvent
 {
     public function __construct(
         private string $orderId,

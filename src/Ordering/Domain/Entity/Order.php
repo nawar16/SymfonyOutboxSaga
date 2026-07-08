@@ -6,6 +6,7 @@ use App\Ordering\Domain\Enum\OrderStatus;
 use App\Ordering\Domain\Event\OrderPlaced;
 use App\Ordering\Domain\Exception\DuplicateOrderItemException;
 use App\Ordering\Domain\Exception\EmptyOrderException;
+use App\Shared\Domain\Event\DomainEvent;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -26,6 +27,7 @@ class Order
     private Collection $items;
     #[ORM\Column(type: 'integer')]
     private int $totalAmount = 0;
+    /** @var DomainEvent[] */
     private array $domainEvents = [];
     
     private function __construct(string $id, string $customerId)
@@ -83,14 +85,15 @@ class Order
     public function getStatus(): OrderStatus { return $this->status; }
     public function getTotalAmount(): int { return $this->totalAmount; }
     public function getItems(): array { return $this->items->toArray(); }
-   
+    
+    /** @return DomainEvent[] */
     public function pullDomainEvents(): array
     {
         $events = $this->domainEvents;
         $this->domainEvents = [];
         return $events;
     }
-    private function recordEvent(object $event): void
+    private function recordEvent(DomainEvent $event): void
     {
         $this->domainEvents[] = $event;
     }
