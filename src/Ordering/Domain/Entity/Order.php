@@ -35,7 +35,7 @@ class Order
         $this->status = OrderStatus::Pending;
         $this->items = new ArrayCollection(); 
     }
-    /** @param array<OrderItem> $items */
+    
     public static function place(string $id, string $customerId, array $items): self
     {
         if (empty($items)) 
@@ -82,7 +82,6 @@ class Order
     public function getCustomerId(): string { return $this->customerId; }
     public function getStatus(): OrderStatus { return $this->status; }
     public function getTotalAmount(): int { return $this->totalAmount; }
-    /** @return array<OrderItem> */
     public function getItems(): array { return $this->items->toArray(); }
    
     public function pullDomainEvents(): array

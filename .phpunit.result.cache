@@ -1,1 +1,1 @@
-{"version":1,"defects":[],"times":{"App\\Tests\\Test::testEnvironmentWorks":0.006}}
+{"version":1,"defects":[],"times":{"App\\Tests\\Test::testEnvironmentWorks":0.052,"App\\Tests\\Ordering\\Domain\\OrderTest::testPlaceOrderCalculatesTotalAndRecordsEvent":1.596,"App\\Tests\\Ordering\\Domain\\OrderTest::testEmptyOrderException":0.141,"App\\Tests\\Ordering\\Domain\\OrderTest::testInvalidQuantityException":0.001}}
