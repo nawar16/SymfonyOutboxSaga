@@ -17,7 +17,7 @@ jobs:
           mkdir -p config/jwt
           cat <<EOF > .env
           APP_ENV=dev
-          echo "APP_SECRET=67d1217409d5" >> .env
+          APP_SECRET=67d1217409d5
           DEFAULT_URI=http://localhost
           DATABASE_URL=postgresql://postgres.${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@postgres:5432/postgres?serverVersion=16&charset=utf8
           JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}
