@@ -65,8 +65,8 @@ jobs:
 
       - name: Setup database & run tests
         run: |
-          docker compose exec -T php php bin/console doctrine:database:create --if-not-exists
-          docker compose exec -T php php bin/console doctrine:schema:create
+          docker compose exec -T php php bin/console doctrine:database:create --if-not-exists --env=test
+          docker compose exec -T php php bin/console doctrine:schema:create --env=test
           docker compose exec -T php vendor/bin/phpunit
 
       - name: Shut down services
