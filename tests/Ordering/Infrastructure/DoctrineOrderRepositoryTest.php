@@ -11,6 +11,14 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class DoctrineOrderRepositoryTest extends KernelTestCase
 {
+    protected function setUp(): void
+    {
+        self::bootKernel();
+        $entity_manager = static::getContainer()->get(EntityManagerInterface::class);
+        $entity_manager->createQuery('DELETE FROM App\Shared\Infrastructure\Persistence\OutboxMessage')->execute();
+        $entity_manager->createQuery('DELETE FROM App\Ordering\Domain\Entity\OrderItem')->execute();
+        $entity_manager->createQuery('DELETE FROM App\Ordering\Domain\Entity\Order')->execute();
+    }
     public function testSavingOrderAlsoPersistsOutboxMessage(): void
     {
         self::bootKernel();

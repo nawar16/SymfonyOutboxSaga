@@ -11,7 +11,7 @@
         <env name="DEFAULT_URI" value="http://localhost" />
         <env name="MESSENGER_TRANSPORT_DSN" value="in-memory://" />
         <env name="REDIS_DSN" value="redis://redis:6379" />
-        <server name="DATABASE_URL" value="sqlite:///%kernel.project_dir%/var/test.db"/>
+        <server name="TEST_DATABASE_URL" value="sqlite:///%kernel.project_dir%/var/test.db"/>
     </php>
  
     <testsuites>
