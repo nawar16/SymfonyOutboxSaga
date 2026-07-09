@@ -25,4 +25,14 @@ final class OrderPlaced implements DomainEvent
     public function getOccurredAt(): \DateTimeImmutable { return $this->occurredAt; }
     /** @return array<int, array{productId: string, quantity: int}> */
     public function getItems(): array { return $this->items; }
+    public function toPayload(): array
+    {
+        return [
+            'orderId' => $this->orderId,
+            'customerId' => $this->customerId,
+            'totalAmount' => $this->totalAmount,
+            'items' => $this->items,
+            'occurredAt' => $this->occurredAt->format(DATE_ATOM),
+        ];
+    }
 }

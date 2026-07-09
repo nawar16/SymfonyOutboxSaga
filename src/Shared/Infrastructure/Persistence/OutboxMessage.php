@@ -34,7 +34,7 @@ class OutboxMessage
         $message->id = Uuid::v4()->toRfc4122();
         $message->eventId = $event->getEventId();
         $message->eventType = $event::class;
-        $message->payload = get_object_vars($event);
+        $message->payload = $event->toPayload();
         $message->occurredAt = $event->getOccurredAt();
         $message->createdAt = new DateTimeImmutable();
         return $message;
