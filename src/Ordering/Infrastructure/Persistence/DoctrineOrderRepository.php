@@ -4,6 +4,7 @@ namespace App\Ordering\Infrastructure\Persistence;
 
 use App\Ordering\Domain\Entity\Order;
 use App\Ordering\Domain\Repository\OrderRepositoryInterface;
+use App\Shared\Infrastructure\Persistence\OutboxMessage;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class DoctrineOrderRepository implements OrderRepositoryInterface
@@ -14,8 +15,12 @@ final class DoctrineOrderRepository implements OrderRepositoryInterface
 
     public function save(Order $order): void
     {
-        $this->entityManager->persist($order);
-        $this->entityManager->flush();
+        $this->entityManager->wrapInTransaction(function () use ($order) {
+            $this->entityManager->persist($order);
+            foreach ($order->pullDomainEvents() as $event) 
+                $this->entityManager->persist(OutboxMessage::fromDomainEvent($event));
+            $this->entityManager->flush();
+        });
     }
     public function find(string $id): ?Order
     {
