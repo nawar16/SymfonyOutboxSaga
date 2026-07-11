@@ -43,5 +43,7 @@ class OutboxMessage
     public function isSent(): bool{return $this->sentAt !== null;}
     public function getPayload(): array{return $this->payload;}
     public function getEventType(): string{return $this->eventType;}
+    public function getEventId(): string{return $this->eventId;}
     public function getSentAt(): ?DateTimeImmutable{return $this->sentAt;}
+    public function getOccurredAt(): DateTimeImmutable{return $this->occurredAt;}
 }
