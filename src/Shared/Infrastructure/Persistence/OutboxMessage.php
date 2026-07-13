@@ -46,4 +46,6 @@ class OutboxMessage
     public function getEventId(): string{return $this->eventId;}
     public function getSentAt(): ?DateTimeImmutable{return $this->sentAt;}
     public function getOccurredAt(): DateTimeImmutable{return $this->occurredAt;}
+    public function getId(): string{return $this->id;}
+    public function getCreatedAt(): DateTimeImmutable{return $this->createdAt;}
 }
