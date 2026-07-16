@@ -13,8 +13,9 @@ final class OutboxPublisher
         private DomainEventDeserializer $deserializer
     ) 
     {}
-    public function publishPending(int $limit = 100): void
+    public function publishPending(int $limit = 100): int
     {
+        $published = 0;
         $messages = $this->outboxRepository->findPending($limit);
         foreach ($messages as $message) {
             try {
@@ -25,10 +26,12 @@ final class OutboxPublisher
                 $this->bus->dispatch($event);
                 $message->markAsSent();
                 $this->outboxRepository->save($message);
+                ++$published;
             } catch (\Throwable $exception) {
                 // TODO: here i should add a retry mechanism
                 throw $exception;
             }
         }
+        return $published;
     }
 }
