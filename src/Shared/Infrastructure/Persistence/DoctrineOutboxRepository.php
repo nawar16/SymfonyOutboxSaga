@@ -4,7 +4,7 @@ namespace App\Shared\Infrastructure\Persistence;
 
 use Doctrine\ORM\EntityManagerInterface;
 
-final class DoctrineOutboxRepository
+class DoctrineOutboxRepository
 {
     public function __construct(private EntityManagerInterface $entityManager) 
     {}

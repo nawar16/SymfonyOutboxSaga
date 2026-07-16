@@ -5,7 +5,7 @@ namespace App\Shared\Infrastructure\Service;
 use App\Ordering\Domain\Event\OrderPlaced;
 use App\Shared\Domain\Event\DomainEvent;
 
-final class DomainEventDeserializer
+class DomainEventDeserializer
 {
     public function deserialize(
         string $eventType,
