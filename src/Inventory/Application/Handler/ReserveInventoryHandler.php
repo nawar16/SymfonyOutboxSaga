@@ -7,7 +7,9 @@ use App\Inventory\Infrastructure\Persistence\DoctrineInventoryRepository;
 use App\Ordering\Domain\Event\OrderPlaced;
 use DomainException;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
+#[AsMessageHandler]
 final class ReserveInventoryHandler
 {
     public function __construct(
