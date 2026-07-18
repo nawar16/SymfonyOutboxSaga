@@ -10,7 +10,7 @@ use InvalidArgumentException;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'inventory_items')]
-final class InventoryItem
+class InventoryItem
 {
     #[ORM\Id]
     #[ORM\Column(type: 'string', length: 36)]
