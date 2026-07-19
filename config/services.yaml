@@ -23,6 +23,8 @@ services:
     # please note that last definitions always *replace* previous ones
     App\Ordering\Domain\Repository\OrderRepositoryInterface:
         alias: App\Ordering\Infrastructure\Persistence\DoctrineOrderRepository
+    App\Inventory\Domain\Repository\InventoryRepositoryInterface:
+        alias: App\Inventory\Infrastructure\Persistence\DoctrineInventoryRepository
 
     App\Ordering\Infrastructure\Service\PriceLookupService:
         arguments: []
