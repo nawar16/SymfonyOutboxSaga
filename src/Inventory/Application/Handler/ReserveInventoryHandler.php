@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Inventory\Application\EventHandler;
+namespace App\Inventory\Application\Handler;
 
 use App\Inventory\Domain\Event\InventoryReserved;
 use App\Inventory\Domain\Exception\InventoryItemNotFoundException;
