@@ -3,6 +3,7 @@
 namespace App\Inventory\Application\EventHandler;
 
 use App\Inventory\Domain\Event\InventoryReserved;
+use App\Inventory\Domain\Exception\InventoryItemNotFoundException;
 use App\Inventory\Infrastructure\Persistence\DoctrineInventoryRepository;
 use App\Ordering\Domain\Event\OrderPlaced;
 use DomainException;
@@ -21,7 +22,7 @@ final class ReserveInventoryHandler
         foreach ($event->getItems() as $item) {
             $inventoryItem = $this->repository->findByProductId($item['productId']);
             if ($inventoryItem === null) 
-                throw new DomainException(sprintf('Inventory item "%s" does not exist',$item['productId']));
+                throw new InventoryItemNotFoundException($item['productId']);
             $inventoryItem->reserve($event->getOrderId(),$item['quantity']);
             $this->repository->save($inventoryItem);
             foreach ($inventoryItem->pullDomainEvents() as $domainEvent) 

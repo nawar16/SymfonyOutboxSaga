@@ -4,6 +4,8 @@ namespace App\Inventory\Domain\Entity;
 
 use App\Inventory\Domain\Event\InventoryReserved;
 use App\Inventory\Domain\Exception\InsufficientStockException;
+use App\Inventory\Domain\Exception\InvalidInventoryQuantityException;
+use App\Inventory\Domain\Exception\InvalidReservationException;
 use Doctrine\ORM\Mapping as ORM;
 use DomainException;
 use InvalidArgumentException;
@@ -32,23 +34,24 @@ class InventoryItem
 
     public function reserve(string $orderId, int $quantity): void
     {
-        $quantity <= 0? throw new InvalidArgumentException('Quantity must be greater than zero'):'';
-        $quantity > $this->availableQuantity? throw new InsufficientStockException($this->productId):'';
+        $quantity <= 0? throw new InvalidInventoryQuantityException($quantity):'';
+        $quantity > $this->availableQuantity? 
+        throw new InsufficientStockException($this->productId,$quantity,$this->availableQuantity):'';
         $this->availableQuantity -= $quantity;
         $this->reservedQuantity += $quantity;
         $this->recordEvent(new InventoryReserved($orderId,$this->productId,$quantity));
     }
     public function releaseReservation(int $quantity): void
     {
-        $quantity <= 0? throw new InvalidArgumentException('Quantity must be greater than zero'):'';
-        $quantity > $this->reservedQuantity? throw new DomainException('Cannot release more than reserved quantity'):'';
+        $quantity <= 0? throw new InvalidInventoryQuantityException($quantity):'';
+        $quantity > $this->reservedQuantity? throw new InvalidReservationException('Can\'t release more than the reserved quantity'):'';
         $this->reservedQuantity -= $quantity;
         $this->availableQuantity += $quantity;
     }
     public function confirmReservation(int $quantity): void
     {
-        $quantity <= 0 ? throw new InvalidArgumentException('Quantity must be greater than zero'):'';
-        $quantity > $this->reservedQuantity ? throw new DomainException('Cannot confirm more than reserved quantity'):'';
+        $quantity <= 0 ? throw new InvalidInventoryQuantityException($quantity):'';
+        $quantity > $this->reservedQuantity ? throw new InvalidReservationException('Can\'t release more than the reserved quantity'):'';
         $this->reservedQuantity -= $quantity;
     }
     private function recordEvent(object $event): void
