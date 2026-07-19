@@ -4,6 +4,7 @@ namespace App\Tests\Inventory\Application\EventHandler;
 
 use App\Inventory\Application\Handler\ReserveInventoryHandler;
 use App\Inventory\Domain\Entity\InventoryItem;
+use App\Inventory\Domain\Repository\InventoryRepositoryInterface;
 use App\Inventory\Infrastructure\Persistence\DoctrineInventoryRepository;
 use App\Ordering\Domain\Event\OrderPlaced;
 use PHPUnit\Framework\TestCase;
@@ -15,7 +16,7 @@ final class ReserveInventoryHandlerTest extends TestCase
     public function testHandlerReservesInventory(): void
     {
         $inventory = new InventoryItem('product-1',100);
-        $repository = $this->createMock(DoctrineInventoryRepository::class);
+        $repository = $this->createMock(InventoryRepositoryInterface::class);
         $repository->expects($this->once())->method('findByProductId')->with('product-1')->willReturn($inventory);
         $repository->expects($this->once())->method('save')->with($inventory);
         $bus = $this->createMock(MessageBusInterface::class);
@@ -28,7 +29,7 @@ final class ReserveInventoryHandlerTest extends TestCase
     }
     public function testThrowsWhenInventoryDoesNotExist(): void
     {
-        $repository = $this->createMock(DoctrineInventoryRepository::class);
+        $repository = $this->createMock(InventoryRepositoryInterface::class);
         $repository->method('findByProductId')->willReturn(null);
         $bus = $this->createMock(MessageBusInterface::class);
         $handler = new ReserveInventoryHandler($repository,$bus);

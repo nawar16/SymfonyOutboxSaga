@@ -4,6 +4,7 @@ namespace App\Inventory\Application\Handler;
 
 use App\Inventory\Domain\Event\InventoryReserved;
 use App\Inventory\Domain\Exception\InventoryItemNotFoundException;
+use App\Inventory\Domain\Repository\InventoryRepositoryInterface;
 use App\Inventory\Infrastructure\Persistence\DoctrineInventoryRepository;
 use App\Ordering\Domain\Event\OrderPlaced;
 use DomainException;
@@ -14,7 +15,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 final class ReserveInventoryHandler
 {
     public function __construct(
-        private DoctrineInventoryRepository $repository,
+        private InventoryRepositoryInterface $repository,
         private MessageBusInterface $bus) {}
 
     public function __invoke(OrderPlaced $event): void
