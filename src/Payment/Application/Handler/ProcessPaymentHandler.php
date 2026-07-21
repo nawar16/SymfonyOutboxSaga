@@ -3,11 +3,11 @@
 namespace App\Payment\Application\Handler;
 
 use App\Inventory\Domain\Event\InventoryReserved;
-use App\Ordering\Infrastructure\Persistence\DoctrineOrderRepository;
+use App\Ordering\Domain\Repository\OrderRepositoryInterface;
 use App\Payment\Domain\Entity\Payment;
 use App\Payment\Domain\Exception\PaymentProcessingException;
+use App\Payment\Domain\Repository\PaymentRepositoryInterface;
 use App\Payment\Domain\Service\PaymentGatewayInterface;
-use App\Payment\Infrastructure\Persistence\DoctrinePaymentRepository;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
@@ -16,8 +16,8 @@ use Symfony\Component\Uid\Uuid;
 final class ProcessPaymentHandler
 {
     public function __construct(
-        private DoctrinePaymentRepository $repository,
-        private DoctrineOrderRepository $orderRepository,
+        private PaymentRepositoryInterface $repository,
+        private OrderRepositoryInterface $orderRepository,
         private PaymentGatewayInterface $gateway,
         private MessageBusInterface $bus
     ) 

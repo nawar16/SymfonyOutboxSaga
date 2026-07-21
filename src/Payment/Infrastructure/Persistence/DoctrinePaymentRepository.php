@@ -3,9 +3,10 @@
 namespace App\Payment\Infrastructure\Persistence;
 
 use App\Payment\Domain\Entity\Payment;
+use App\Payment\Domain\Repository\PaymentRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class DoctrinePaymentRepository
+final class DoctrinePaymentRepository implements PaymentRepositoryInterface
 {
     public function __construct(private EntityManagerInterface $entityManager) {}
     public function find(string $orderId): ?Payment
