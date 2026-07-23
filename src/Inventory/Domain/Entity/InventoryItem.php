@@ -32,14 +32,14 @@ class InventoryItem
         $this->availableQuantity = $availableQuantity;
     }
 
-    public function reserve(string $orderId, int $quantity): void
+    public function reserve(int $quantity): void
     {
         $quantity <= 0? throw new InvalidInventoryQuantityException($quantity):'';
         $quantity > $this->availableQuantity? 
         throw new InsufficientStockException($this->productId,$quantity,$this->availableQuantity):'';
         $this->availableQuantity -= $quantity;
         $this->reservedQuantity += $quantity;
-        $this->recordEvent(new InventoryReserved($orderId,$this->productId,$quantity));
+        //$this->recordEvent(new InventoryReserved($orderId,$this->productId,$quantity));
     }
     public function releaseReservation(int $quantity): void
     {
