@@ -8,9 +8,11 @@ use App\Ordering\Domain\Repository\OrderRepositoryInterface;
 use App\Payment\Application\Handler\ProcessPaymentHandler;
 use App\Payment\Domain\Event\PaymentFailed;
 use App\Payment\Domain\Event\PaymentSucceeded;
+use App\Payment\Domain\Exception\PaymentProcessingException;
 use App\Payment\Domain\Repository\PaymentRepositoryInterface;
 use App\Payment\Domain\Service\PaymentGatewayInterface;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 final class ProcessPaymentHandlerTest extends TestCase
@@ -26,7 +28,8 @@ final class ProcessPaymentHandlerTest extends TestCase
         $gateway =$this->createMock(PaymentGatewayInterface::class);
         $gateway->method('charge')->willReturn(true);
         $bus =$this->createMock(MessageBusInterface::class);
-        $bus->expects($this->once())->method('dispatch')->with($this->isInstanceOf(PaymentSucceeded::class));
+        $bus->expects($this->once())->method('dispatch')->with($this->isInstanceOf(PaymentSucceeded::class))
+        ->willReturnCallback(fn ($message) => new Envelope($message));
         $handler = new ProcessPaymentHandler($paymentRepository,$orderRepository,$gateway,$bus);
         $reservations = [['item_id' => 'item-1', 'quantity' => 2]];
         $handler(new InventoryReserved('order-1', $reservations));
@@ -42,8 +45,10 @@ final class ProcessPaymentHandlerTest extends TestCase
         $gateway =$this->createMock(PaymentGatewayInterface::class);
         $gateway->method('charge')->willReturn(false);
         $bus =$this->createMock(MessageBusInterface::class);
-        $bus->expects($this->once())->method('dispatch')->with($this->isInstanceOf(PaymentFailed::class));
+        $bus->expects($this->once())->method('dispatch')->with($this->isInstanceOf(PaymentFailed::class))
+        ->willReturnCallback(fn ($message) => new Envelope($message));
         $handler = new ProcessPaymentHandler($paymentRepository,$orderRepository,$gateway,$bus);
+        $this->expectException(PaymentProcessingException::class);
         $reservations = [['item_id' => 'item-1', 'quantity' => 2]];
         $handler(new InventoryReserved('order-1', $reservations));
     }
