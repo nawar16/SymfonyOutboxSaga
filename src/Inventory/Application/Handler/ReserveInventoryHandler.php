@@ -5,6 +5,7 @@ namespace App\Inventory\Application\Handler;
 use App\Inventory\Domain\Event\InventoryReserved;
 use App\Inventory\Domain\Exception\InventoryItemNotFoundException;
 use App\Inventory\Domain\Repository\InventoryRepositoryInterface;
+use App\Inventory\Domain\Repository\InventoryReservationRepositoryInterface;
 use App\Inventory\Infrastructure\Persistence\DoctrineInventoryRepository;
 use App\Ordering\Domain\Event\OrderPlaced;
 use DomainException;
@@ -16,6 +17,7 @@ final class ReserveInventoryHandler
 {
     public function __construct(
         private InventoryRepositoryInterface $repository,
+        private InventoryReservationRepositoryInterface $reservationRepository,
         private MessageBusInterface $bus) {}
 
     public function __invoke(OrderPlaced $event): void
