@@ -3,9 +3,10 @@
 namespace App\Inventory\Infrastructure\Persistence;
 
 use App\Inventory\Domain\Entity\InventoryReservation;
+use App\Inventory\Domain\Repository\InventoryReservationRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class DoctrineInventoryReservationRepository
+final class DoctrineInventoryReservationRepository implements InventoryReservationRepositoryInterface
 {
     public function __construct(private EntityManagerInterface $entityManager) 
     {}
